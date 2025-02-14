@@ -1,8 +1,8 @@
 import mongoose, { Schema, model } from "mongoose";
-import { GENDER, ROLE } from "../../common/constants";
+import { GENDER, ROLE } from "../../common/constants/index.js";
 
 const userSchema = new Schema({
-  username: {
+  userName: {
     type: String,
     required: true,
     trim: true,
@@ -47,4 +47,4 @@ const userSchema = new Schema({
   }
 }, { timestamps: true });
 
-export const UserModel = mongoose.model.User || model('User', userSchema);  
+export const userModel = mongoose.model.User || model('User', userSchema);  
