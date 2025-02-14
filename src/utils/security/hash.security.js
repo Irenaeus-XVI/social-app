@@ -5,6 +5,6 @@ export const generateHash = ({ plainText = "", saltRounds = process.env.SALT }) 
 
 }
 
-export const compareHash = ({ plainText = "", hash = "" }) => {
+export const compareHash = ({ plainText = "", hash = "" } = {}) => {
   return bcrypt.compareSync(plainText, hash);
 }

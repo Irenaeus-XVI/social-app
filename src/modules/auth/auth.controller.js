@@ -6,5 +6,5 @@ const authRouter = Router();
 
 authRouter.post('/register', validation(validators.signup), registerRoutes.register);
 authRouter.patch('/confirm-email', validation(validators.confirmEmail), registerRoutes.confirmEmail);
-
+authRouter.post('/login', validation(validators.login), registerRoutes.login);
 export default authRouter;  

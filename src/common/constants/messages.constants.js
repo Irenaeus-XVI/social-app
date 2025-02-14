@@ -13,5 +13,7 @@ export const message = {
     Confirmed: 'User already confirmed!',
     InvalidOTP: 'Invalid OTP!',
     ConfirmedSuccess: 'User confirmed successfully!',
+    Verify: 'Please verify your email!',
+    Invalid_Credentials: 'Invalid credentials!',
   }
 };

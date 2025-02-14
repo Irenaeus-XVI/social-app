@@ -18,3 +18,8 @@ export const confirmEmail = Joi.object().keys({
   email: Joi.string().email({ minDomainSegments: 2, maxDomainSegments: 3, tlds: { allow: ['com', 'net'] } }).trim().required(),
   code: Joi.string().min(4).max(4).required(),
 }).required();
+
+export const login = Joi.object().keys({
+  email: Joi.string().email({ minDomainSegments: 2, maxDomainSegments: 3, tlds: { allow: ['com', 'net'] } }).trim().required(),
+  password: Joi.string().min(6).max(50).required(),
+}).required();
