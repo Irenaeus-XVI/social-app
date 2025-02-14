@@ -1,0 +1,18 @@
+{
+  "name": "social-media-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Social media app is a platform for online communication  where users can add , edit post  comments and  reply  beside upload images  and full profile control while admin mentor all the flow and can block or re-activate users accounts ",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.10.0"
+  }
+}
