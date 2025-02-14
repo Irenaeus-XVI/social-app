@@ -11,4 +11,10 @@ export const signup = Joi.object().keys({
       'any.only': 'Confirmation password must match the original password.',
     }),
 
-}).required();  
+}).required();
+
+
+export const confirmEmail = Joi.object().keys({
+  email: Joi.string().email({ minDomainSegments: 2, maxDomainSegments: 3, tlds: { allow: ['com', 'net'] } }).trim().required(),
+  code: Joi.string().min(4).max(4).required(),
+}).required();

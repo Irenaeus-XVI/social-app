@@ -12,7 +12,7 @@ emailEvent.on("sendConfirmEmail", async (data) => {
 
   await userModel.updateOne({ email }, { confirmEmailOTP: hashOTP });
 
-  const html = verifyAccountTemplate({ otp });
+  const html = verifyAccountTemplate({ code: otp });
   await sendEmail({
     to: email,
     subject: "Confirm-Email",

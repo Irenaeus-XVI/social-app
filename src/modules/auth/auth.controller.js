@@ -5,5 +5,6 @@ import { validation } from '../../middleware/index.js';
 const authRouter = Router();
 
 authRouter.post('/register', validation(validators.signup), registerRoutes.register);
+authRouter.patch('/confirm-email', validation(validators.confirmEmail), registerRoutes.confirmEmail);
 
 export default authRouter;  
