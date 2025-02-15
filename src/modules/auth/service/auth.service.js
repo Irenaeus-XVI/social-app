@@ -1,6 +1,6 @@
 import { userModel } from "../../../database/model/index.js";
 import { AppError } from "../../../utils/appError.js";
-import { compareHash, generateHash, generateToken } from "../../../utils/security/index.js";
+import { compareHash, generateHash, generateToken, verifyToken } from "../../../utils/security/index.js";
 import { asyncHandler } from "../../../utils/response/error.response.js";
 import { emailEvent } from "../../../utils/events/email.event.js";
 import { successResponse } from "../../../utils/response/success.response.js";
@@ -95,4 +95,53 @@ export const login = asyncHandler(async (req, res, next) => {
   });
 
   return successResponse({ res, status: 200, data: { access_token: accessToken, refresh_token: refreshToken } });
+});
+
+
+export const refreshToken = asyncHandler(async (req, res, next) => {
+  const { authorization } = req.headers;
+  const [bearer, token] = authorization.split(' ') || [];
+  console.log(bearer, token);
+
+  if (!bearer || !token) {
+    return next(new AppError(message.user.Unauthorize, 401));
+  }
+
+  let signature = bearer === 'Bearer' ? process.env.USER_REFRESH_TOKEN : process.env.ADMIN_REFRESH_TOKEN
+
+  const decoded = verifyToken({ token, signature });
+
+  if (!decoded) {
+    return next(new AppError(message.user.Unauthorize, 401));
+  }
+
+  const user = await userModel.findOne({ _id: decoded.id, isDeleted: false });
+
+  if (!user) {
+    return next(new AppError(message.user.NotFound, 404));
+  }
+
+  if (user.changeCredentialTime?.getTime() > decoded.iat * 1000) {
+    return next(new AppError(message.user.Unauthorize, 401));
+  }
+
+  const tokenPayload = {
+    id: user._id,
+    email: user.email,
+    role: user.role
+  };
+
+
+  const accessToken = generateToken({
+    payload: tokenPayload,
+    signature: signature,
+  });
+
+  const refreshToken = generateToken({
+    payload: tokenPayload,
+    signature: signature,
+    expiresIn: 31536000
+  });
+
+  return successResponse({ res, status: 200, data: { accessToken, refreshToken } });
 });

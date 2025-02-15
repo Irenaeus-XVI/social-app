@@ -15,5 +15,6 @@ export const message = {
     ConfirmedSuccess: 'User confirmed successfully!',
     Verify: 'Please verify your email!',
     Invalid_Credentials: 'Invalid credentials!',
+    Unauthorize: 'Unauthorized!',
   }
 };
