@@ -54,7 +54,19 @@ const userSchema = new Schema({
     type: String,
     enum: PROVIDERS,
     default: PROVIDERS.LOCAL,
-  }
+  },
+  viewers: [
+    {
+      userId: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+      time: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
 }, { timestamps: true });
 
 export const userModel = mongoose.model.User || model('User', userSchema);  

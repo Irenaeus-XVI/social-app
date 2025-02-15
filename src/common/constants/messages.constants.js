@@ -21,5 +21,6 @@ export const message = {
     OTP_Verified: 'OTP verified successfully!',
     Password_Updated: 'Password updated successfully!',
     Forbidden: 'Forbidden!',
-  }
+  },
+  INVALID_OBJECT_ID: 'Invalid object id!',
 };
