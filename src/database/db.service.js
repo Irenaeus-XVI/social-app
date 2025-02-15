@@ -11,7 +11,7 @@ export const find = async ({ model, filter = {}, select = "", populate = [], ski
 }
 
 export const findOne = async ({ model, filter = {}, select = "", populate = [] } = {}) => {
-  const document = await model.find(filter).select(select).populate(populate);
+  const document = await model.findOne(filter).select(select).populate(populate).lean();
   return document;
 }
 

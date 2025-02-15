@@ -1,10 +1,10 @@
 import { userModel } from "../../../database/model/index.js";
 import { AppError } from "../../../utils/appError.js";
-import { compareHash, generateHash, generateToken, verifyToken } from "../../../utils/security/index.js";
+import { compareHash, decodeToken, generateHash, generateToken, verifyToken } from "../../../utils/security/index.js";
 import { asyncHandler } from "../../../utils/response/error.response.js";
 import { emailEvent } from "../../../utils/events/email.event.js";
 import { successResponse } from "../../../utils/response/success.response.js";
-import { GOOGLE_PROVIDER, LOCAL_PROVIDER, message, ROLE } from "../../../common/constants/index.js";
+import { GOOGLE_PROVIDER, LOCAL_PROVIDER, message, ROLE, TOKEN_TYPES } from "../../../common/constants/index.js";
 import { OAuth2Client } from 'google-auth-library';
 import * as dbService from "../../../database/db.service.js";
 
@@ -170,30 +170,10 @@ export const googleLogin = asyncHandler(async (req, res, next) => {
 
 export const refreshToken = asyncHandler(async (req, res, next) => {
   const { authorization } = req.headers;
-  const [bearer, token] = authorization.split(' ') || [];
-  console.log(bearer, token);
 
-  if (!bearer || !token) {
-    return next(new AppError(message.user.Unauthorize, 401));
-  }
+  const user = await decodeToken({ authorization, tokenType: TOKEN_TYPES.REFRESH, next });
 
-  let signature = bearer === 'Bearer' ? process.env.USER_REFRESH_TOKEN : process.env.ADMIN_REFRESH_TOKEN
-
-  const decoded = verifyToken({ token, signature });
-
-  if (!decoded) {
-    return next(new AppError(message.user.Unauthorize, 401));
-  }
-
-  const user = await dbService.findOne({ model: userModel, filter: { _id: decoded.id } });
-
-  if (!user) {
-    return next(new AppError(message.user.NotFound, 404));
-  }
-
-  if (user.changeCredentialTime?.getTime() > decoded.iat * 1000) {
-    return next(new AppError(message.user.Unauthorize, 401));
-  }
+  let signature = user.role === ROLE.ADMIN ? process.env.ADMIN_REFRESH_TOKEN : process.env.USER_REFRESH_TOKEN;
 
   const tokenPayload = {
     id: user._id,

@@ -1,3 +1,4 @@
+
 export const generateMessage = (entity) => ({
   AlreadyExists: `${entity} already exists!`,
   NotFound: `${entity} not found!`,
@@ -19,5 +20,6 @@ export const message = {
     OTP_Sent: 'OTP sent successfully!',
     OTP_Verified: 'OTP verified successfully!',
     Password_Updated: 'Password updated successfully!',
+    Forbidden: 'Forbidden!',
   }
 };
