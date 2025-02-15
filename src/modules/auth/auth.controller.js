@@ -7,6 +7,7 @@ const authRouter = Router();
 authRouter.post('/register', validation(validators.signup), registerRoutes.register);
 authRouter.patch('/confirm-email', validation(validators.confirmEmail), registerRoutes.confirmEmail);
 authRouter.post('/login', validation(validators.login), registerRoutes.login);
+authRouter.post('/google-login', registerRoutes.googleLogin);
 authRouter.get('/refresh-token', registerRoutes.refreshToken);
 authRouter.patch('/forget-password', validation(validators.forgetPassword), registerRoutes.forgetPassword);
 authRouter.patch('/validate-forget-password', validation(validators.validateForgetPassword), registerRoutes.validateForgetPasswordCode);

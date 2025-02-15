@@ -4,7 +4,8 @@ import { compareHash, generateHash, generateToken, verifyToken } from "../../../
 import { asyncHandler } from "../../../utils/response/error.response.js";
 import { emailEvent } from "../../../utils/events/email.event.js";
 import { successResponse } from "../../../utils/response/success.response.js";
-import { message, ROLE } from "../../../common/constants/index.js";
+import { GOOGLE_PROVIDER, LOCAL_PROVIDER, message, ROLE } from "../../../common/constants/index.js";
+import { OAuth2Client } from 'google-auth-library';
 
 
 export const register = asyncHandler(async (req, res, next) => {
@@ -57,7 +58,7 @@ export const confirmEmail = asyncHandler(async (req, res, next) => {
 export const login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
 
-  const user = await userModel.findOne({ email });
+  const user = await userModel.findOne({ email, provider: LOCAL_PROVIDER });
   if (!user) {
     return next(new AppError(message.user.NotFound, 404));
   }
@@ -97,6 +98,61 @@ export const login = asyncHandler(async (req, res, next) => {
   return successResponse({ res, status: 200, data: { access_token: accessToken, refresh_token: refreshToken } });
 });
 
+export const googleLogin = asyncHandler(async (req, res, next) => {
+  const { idToken } = req.body;
+  const client = new OAuth2Client();
+  async function verify() {
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.WEB_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    return payload;
+  }
+  const payload = await verify();
+
+  if (!payload || !payload.email_verified) {
+    return next(new AppError(message.user.Invalid_Credentials, 404));
+  }
+
+  let user = await userModel.findOne({ email: payload.email });
+  if (!user) {
+    user = await userModel.create({
+      email: payload.email,
+      userName: payload.name,
+      confirmEmail: payload.email_verified,
+      image: payload.picture,
+      provider: GOOGLE_PROVIDER
+    });
+  }
+
+  if (user.provider !== GOOGLE_PROVIDER) {
+    return next(new AppError(message.user.Invalid_Credentials, 404));
+  }
+
+  const tokenPayload = {
+    id: user._id,
+    email: user.email,
+    role: user.role
+  };
+
+  const accessTokenSignature = user.role === ROLE.ADMIN ? process.env.ADMIN_ACCESS_TOKEN : process.env.USER_ACCESS_TOKEN;
+  const accessToken = generateToken({
+    payload: tokenPayload,
+    signature: accessTokenSignature,
+  });
+
+  const refreshTokenSignature = user.role === ROLE.ADMIN ? process.env.ADMIN_REFRESH_TOKEN : process.env.USER_REFRESH_TOKEN;
+  const refreshToken = generateToken({
+    payload: tokenPayload,
+    signature: refreshTokenSignature,
+    expiresIn: 31536000
+  });
+
+
+
+  return successResponse({ res, status: 200, data: { accessToken, refreshToken } });
+});
 
 export const refreshToken = asyncHandler(async (req, res, next) => {
   const { authorization } = req.headers;
@@ -185,7 +241,6 @@ export const validateForgetPasswordCode = asyncHandler(async (req, res, next) =>
   return successResponse({ res, status: 200, message: message.user.OTP_Verified });
 
 });
-
 
 export const resetPassword = asyncHandler(async (req, res, next) => {
   const { email, password, code } = req.body;

@@ -1,5 +1,5 @@
 import mongoose, { Schema, model } from "mongoose";
-import { GENDER, ROLE } from "../../common/constants/index.js";
+import { GENDER, PROVIDERS, ROLE } from "../../common/constants/index.js";
 
 const userSchema = new Schema({
   userName: {
@@ -20,7 +20,9 @@ const userSchema = new Schema({
   },
   password: {
     type: String,
-    required: true,
+    required: (data) => {
+      return data?.provider === PROVIDERS.LOCAL;
+    },
   },
   phone: String,
   address: String,
@@ -47,6 +49,11 @@ const userSchema = new Schema({
   },
   changeCredentialTime: {
     type: Date,
+  },
+  provider: {
+    type: String,
+    enum: PROVIDERS,
+    default: PROVIDERS.LOCAL,
   }
 }, { timestamps: true });
 
