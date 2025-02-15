@@ -6,13 +6,13 @@ import { emailEvent } from "../../../utils/events/email.event.js";
 import { successResponse } from "../../../utils/response/success.response.js";
 import { GOOGLE_PROVIDER, LOCAL_PROVIDER, message, ROLE } from "../../../common/constants/index.js";
 import { OAuth2Client } from 'google-auth-library';
-
+import * as dbService from "../../../database/db.service.js";
 
 export const register = asyncHandler(async (req, res, next) => {
   const { userName, email, password } = req.body;
 
 
-  const isExist = await userModel.findOne({ email });
+  const isExist = await dbService.findOne({ model: userModel, filter: { email } });
   console.log(isExist);
   if (isExist) {
     return next(new AppError(message.user.AlreadyExists, 409));
@@ -20,7 +20,14 @@ export const register = asyncHandler(async (req, res, next) => {
 
   const hashPassword = generateHash({ plainText: password });
 
-  const user = await userModel.create({ userName, email, password: hashPassword });
+  const user = await dbService.create({
+    model: userModel,
+    data: {
+      userName, email,
+      password: hashPassword,
+      provider: LOCAL_PROVIDER
+    }
+  });
 
   emailEvent.emit("sendConfirmEmail", { id: user._id, email });
 
@@ -33,7 +40,7 @@ export const confirmEmail = asyncHandler(async (req, res, next) => {
   const { email, code } = req.body;
 
 
-  const isExist = await userModel.findOne({ email });
+  const isExist = await dbService.findOne({ model: userModel, filter: { email } });
   console.log(isExist);
   if (!isExist) {
     return next(new AppError(message.user.NotFound, 404));
@@ -49,7 +56,11 @@ export const confirmEmail = asyncHandler(async (req, res, next) => {
     return next(new AppError(message.user.InvalidOTP, 400));
   }
 
-  await userModel.updateOne({ email }, { confirmEmail: true, $unset: { confirmEmailOTP: 0 } });
+  await dbService.updateOne({
+    model: userModel,
+    filter: { email },
+    data: { confirmEmail: true, $unset: { confirmEmailOTP: 0 } }
+  });
 
   return successResponse({ res, status: 200, message: message.user.ConfirmedSuccess });
 
@@ -58,7 +69,7 @@ export const confirmEmail = asyncHandler(async (req, res, next) => {
 export const login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
 
-  const user = await userModel.findOne({ email, provider: LOCAL_PROVIDER });
+  const user = await dbService.findOne({ model: userModel, filter: { email, isDeleted: false } });
   if (!user) {
     return next(new AppError(message.user.NotFound, 404));
   }
@@ -115,14 +126,17 @@ export const googleLogin = asyncHandler(async (req, res, next) => {
     return next(new AppError(message.user.Invalid_Credentials, 404));
   }
 
-  let user = await userModel.findOne({ email: payload.email });
+  let user = await dbService.findOne({ model: userModel, filter: { email: payload.email } });
   if (!user) {
-    user = await userModel.create({
-      email: payload.email,
-      userName: payload.name,
-      confirmEmail: payload.email_verified,
-      image: payload.picture,
-      provider: GOOGLE_PROVIDER
+    user = await dbService.create({
+      model: userModel,
+      data: {
+        email: payload.email,
+        userName: payload.name,
+        confirmEmail: payload.email_verified,
+        image: payload.picture,
+        provider: GOOGLE_PROVIDER
+      }
     });
   }
 
@@ -171,7 +185,7 @@ export const refreshToken = asyncHandler(async (req, res, next) => {
     return next(new AppError(message.user.Unauthorize, 401));
   }
 
-  const user = await userModel.findOne({ _id: decoded.id, isDeleted: false });
+  const user = await dbService.findOne({ model: userModel, filter: { _id: decoded.id } });
 
   if (!user) {
     return next(new AppError(message.user.NotFound, 404));
@@ -205,7 +219,7 @@ export const refreshToken = asyncHandler(async (req, res, next) => {
 export const forgetPassword = asyncHandler(async (req, res, next) => {
   const { email } = req.body;
 
-  const user = await userModel.findOne({ email, isDeleted: false });
+  const user = await dbService.findOne({ model: userModel, filter: { email, isDeleted: false } });
   if (!user) {
     return next(new AppError(message.user.NotFound, 404));
   }
@@ -224,7 +238,7 @@ export const validateForgetPasswordCode = asyncHandler(async (req, res, next) =>
 
   console.log(email, code);
 
-  const user = await userModel.findOne({ email, isDeleted: false });
+  const user = await dbService.findOne({ model: userModel, filter: { email, isDeleted: false } });
   if (!user) {
     return next(new AppError(message.user.NotFound, 404));
   }
@@ -245,7 +259,7 @@ export const validateForgetPasswordCode = asyncHandler(async (req, res, next) =>
 export const resetPassword = asyncHandler(async (req, res, next) => {
   const { email, password, code } = req.body;
 
-  const user = await userModel.findOne({ email, isDeleted: false });
+  const user = await dbService.findOne({ model: userModel, filter: { email, isDeleted: false } });
   if (!user) {
     return next(new AppError(message.user.NotFound, 404));
   }
@@ -258,7 +272,13 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
     return next(new AppError(message.user.InvalidOTP, 400));
   }
   const hashPassword = generateHash({ plainText: password });
-  await userModel.updateOne({ email }, { password: hashPassword, changeCredentialTime: Date.now(), $unset: { forgetPasswordOTP: 0 } });
+  await dbService.updateOne(
+    {
+      model: userModel,
+      filter: { email },
+      data: { password: hashPassword, changeCredentialTime: Date.now(), $unset: { forgetPasswordOTP: 0 } }
+    }
+  );
 
   return successResponse({ res, status: 200, message: message.user.Password_Updated });
 

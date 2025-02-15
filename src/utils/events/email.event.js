@@ -3,6 +3,7 @@ import { customAlphabet } from "nanoid";
 import { generateHash } from "../security/index.js";
 import { userModel } from "../../database/model/index.js";
 import { sendEmail, verifyAccountTemplate } from "../email/index.js";
+import * as dbService from "../../database/db.service.js";
 export const emailEvent = new EventEmitter();
 const emailSubject = {
   confirm: "Confirm-Email",
@@ -26,9 +27,8 @@ export const sendCode = async (data = {}, subject = emailSubject.confirm, type =
   const updateData = {
     [type]: hashOTP,
   };
-  console.log(updateData);
-  
-  await userModel.updateOne({ _id: id }, updateData);
+
+  await dbService.updateOne({ model: userModel, filters: { _id: id }, data: updateData });
 
   const html = verifyAccountTemplate({ code: otp });
   await sendEmail({
