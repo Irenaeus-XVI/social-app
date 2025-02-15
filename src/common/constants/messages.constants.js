@@ -16,5 +16,8 @@ export const message = {
     Verify: 'Please verify your email!',
     Invalid_Credentials: 'Invalid credentials!',
     Unauthorize: 'Unauthorized!',
+    OTP_Sent: 'OTP sent successfully!',
+    OTP_Verified: 'OTP verified successfully!',
+    Password_Updated: 'Password updated successfully!',
   }
 };

@@ -21,7 +21,7 @@ export const register = asyncHandler(async (req, res, next) => {
 
   const user = await userModel.create({ userName, email, password: hashPassword });
 
-  emailEvent.emit("sendConfirmEmail", { email });
+  emailEvent.emit("sendConfirmEmail", { id: user._id, email });
 
   return successResponse({ res, status: 201, data: user, message: message.user.CreatedSuccess });
 
@@ -144,4 +144,67 @@ export const refreshToken = asyncHandler(async (req, res, next) => {
   });
 
   return successResponse({ res, status: 200, data: { accessToken, refreshToken } });
+});
+
+export const forgetPassword = asyncHandler(async (req, res, next) => {
+  const { email } = req.body;
+
+  const user = await userModel.findOne({ email, isDeleted: false });
+  if (!user) {
+    return next(new AppError(message.user.NotFound, 404));
+  }
+
+  if (!user.confirmEmail) {
+    return next(new AppError(message.user.Verify, 400));
+  }
+  emailEvent.emit("sendForgetPassword", { id: user._id, email });
+
+  return successResponse({ res, status: 200, message: message.user.OTP_Sent });
+
+});
+
+export const validateForgetPasswordCode = asyncHandler(async (req, res, next) => {
+  const { email, code } = req.body;
+
+  console.log(email, code);
+
+  const user = await userModel.findOne({ email, isDeleted: false });
+  if (!user) {
+    return next(new AppError(message.user.NotFound, 404));
+  }
+
+  if (!user.confirmEmail) {
+    return next(new AppError(message.user.Verify, 400));
+  }
+
+  const isMatch = compareHash({ plainText: code, hash: user.forgetPasswordOTP });
+
+  if (!isMatch) {
+    return next(new AppError(message.user.InvalidOTP, 400));
+  }
+  return successResponse({ res, status: 200, message: message.user.OTP_Verified });
+
+});
+
+
+export const resetPassword = asyncHandler(async (req, res, next) => {
+  const { email, password, code } = req.body;
+
+  const user = await userModel.findOne({ email, isDeleted: false });
+  if (!user) {
+    return next(new AppError(message.user.NotFound, 404));
+  }
+
+  if (!user.confirmEmail) {
+    return next(new AppError(message.user.Verify, 400));
+  }
+  const isMatch = compareHash({ plainText: code, hash: user.forgetPasswordOTP });
+  if (!isMatch) {
+    return next(new AppError(message.user.InvalidOTP, 400));
+  }
+  const hashPassword = generateHash({ plainText: password });
+  await userModel.updateOne({ email }, { password: hashPassword, changeCredentialTime: Date.now(), $unset: { forgetPasswordOTP: 0 } });
+
+  return successResponse({ res, status: 200, message: message.user.Password_Updated });
+
 });

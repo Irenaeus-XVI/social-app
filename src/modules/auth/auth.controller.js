@@ -8,4 +8,8 @@ authRouter.post('/register', validation(validators.signup), registerRoutes.regis
 authRouter.patch('/confirm-email', validation(validators.confirmEmail), registerRoutes.confirmEmail);
 authRouter.post('/login', validation(validators.login), registerRoutes.login);
 authRouter.get('/refresh-token', registerRoutes.refreshToken);
+authRouter.patch('/forget-password', validation(validators.forgetPassword), registerRoutes.forgetPassword);
+authRouter.patch('/validate-forget-password', validation(validators.validateForgetPassword), registerRoutes.validateForgetPasswordCode);
+authRouter.patch('/reset-password', validation(validators.resetPassword), registerRoutes.resetPassword);
+
 export default authRouter;  

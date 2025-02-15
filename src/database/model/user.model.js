@@ -15,6 +15,9 @@ const userSchema = new Schema({
   confirmEmailOTP: {
     type: String,
   },
+  forgetPasswordOTP: {
+    type: String,
+  },
   password: {
     type: String,
     required: true,
