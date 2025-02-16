@@ -104,3 +104,27 @@ export const updateProfile = asyncHandler(async (req, res, next) => {
 
   return user ? successResponse({ res, status: 200, data: user }) : next(new AppError(message.user.NotFound, 404));
 });
+
+
+export const updateProfileImage = asyncHandler(async (req, res, next) => {
+
+  await dbService.updateOne({
+    model: userModel,
+    filter: { _id: req.user._id },
+    data: { image: req.file.finalPath },
+  });
+
+  return successResponse({ res, status: 200, data: { file: req.file } });
+});
+
+export const updateCoverImage = asyncHandler(async (req, res, next) => {
+
+  await dbService.updateOne({
+    model: userModel,
+    filter: { _id: req.user._id },
+    data: { coverImages: req.files.map(file => file.finalPath) },
+  });
+
+  return successResponse({ res, status: 200, data: { file: req.file } });
+});
+
