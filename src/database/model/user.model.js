@@ -24,8 +24,16 @@ const userSchema = new Schema({
   phone: String,
   address: String,
   DOB: Date,
-  image: String,
-  coverImages: [String],
+  image: {
+    secure_url: String,
+    public_id: String,
+  },
+  coverImages: [
+    {
+      secure_url: String,
+      public_id: String,
+    },
+  ],
   gender: {
     type: String,
     enum: GENDER,

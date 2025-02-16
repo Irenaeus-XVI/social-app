@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authMiddleware, validateMongoId, validation } from "../../middleware/index.js";
 import * as userService from './service/user.service.js';
 import * as validators from './user.validation.js';
-import { uploadFileDisk } from "../../utils/multer/local.multer.js";
+import { uploadCloudFile, uploadFileDisk } from "../../utils/multer/index.js";
 const router = Router();
 
 router.get("/profile", authMiddleware(), userService.profile);
@@ -13,11 +13,11 @@ router.patch('/update-password', validation(validators.updatePassword), authMidd
 router.patch('/profile', validation(validators.updateProfile), authMiddleware(), userService.updateProfile);
 router.patch('/profile/image',
   authMiddleware(),
-  uploadFileDisk('user/profile').single("attachment"),
+  uploadCloudFile().single("attachment"),
   validation(validators.updateProfileImage),
   userService.updateProfileImage);
 router.patch('/profile/cover',
   authMiddleware(),
-  uploadFileDisk('user/profile').array("attachment", 3),
+  uploadCloudFile().array("attachment", 3),
   userService.updateCoverImage);
 export default router; 

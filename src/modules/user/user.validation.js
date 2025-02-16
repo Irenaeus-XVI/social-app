@@ -33,6 +33,6 @@ export const updateProfileImage = Joi.object().keys({
     filename: Joi.string().required(),
     path: Joi.string().required(),
     size: Joi.number().required(),
-    finalPath: Joi.string().required(),
+    finalPath: Joi.string(),
   }).required(),
 }).required();

@@ -5,6 +5,7 @@ import { userModel } from "../../../database/model/index.js";
 import { CONFIRM_EMAIL_OTP, message, UPDATE_EMAIL_OTP } from "../../../common/constants/index.js";
 import { emailEvent } from "../../../utils/events/email.event.js";
 import { compareHash, generateHash, validateOTP } from "../../../utils/security/index.js";
+import { destroyImage, uploadImage } from "../../../utils/imageUpload.js";
 export const profile = asyncHandler(async (req, res, next) => {
   const user = await dbService.findOne({
     model: userModel, filter: { _id: req.user._id }, select: "-password", populate: [{
@@ -108,21 +109,36 @@ export const updateProfile = asyncHandler(async (req, res, next) => {
 
 export const updateProfileImage = asyncHandler(async (req, res, next) => {
 
-  await dbService.updateOne({
+  const { secure_url, public_id } = await uploadImage(req);
+
+  const user = await dbService.findOneAndUpdate({
     model: userModel,
     filter: { _id: req.user._id },
-    data: { image: req.file.finalPath },
+    data: { image: { secure_url, public_id } },
+    options: { new: false },
+    select: '-password'
   });
 
-  return successResponse({ res, status: 200, data: { file: req.file } });
+  if (user.image?.public_id) {
+    await destroyImage(user.image.public_id);
+  }
+
+  return successResponse({ res, status: 200, data: user });
 });
 
 export const updateCoverImage = asyncHandler(async (req, res, next) => {
 
-  await dbService.updateOne({
+  let coverImages = [];
+  for (const file of req.files) {
+    const { secure_url, public_id } = await uploadImage({ file, user: req.user });
+    coverImages.push({ secure_url, public_id });
+  }
+  const user = await dbService.updateOne({
     model: userModel,
     filter: { _id: req.user._id },
-    data: { coverImages: req.files.map(file => file.finalPath) },
+    data: { coverImages },
+    options: { new: true },
+    select: '-password'
   });
 
   return successResponse({ res, status: 200, data: { file: req.file } });
