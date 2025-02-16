@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
-import { TOKEN_TYPES } from '../../common/constants/index.js';
+import { message, TOKEN_TYPES } from '../../common/constants/index.js';
 import { userModel } from '../../database/model/user.model.js';
 import * as dbService from '../../database/db.service.js';
-import { asyncHandler } from '../response/index.js';
+import { AppError } from '../appError.js';
 export const generateToken = ({ payload = {}, signature = process.env.USER_ACCESS_TOKEN, expiresIn = process.env.EXPIRE_IN }) => {
   return jwt.sign(payload, signature, { expiresIn: parseInt(expiresIn) });
 }
@@ -11,8 +11,8 @@ export const verifyToken = ({ token = "", signature = process.env.JWT_SECRET }) 
   return jwt.verify(token, signature);
 }
 
-export const decodeToken = asyncHandler(async ({ authorization, tokenType = TOKEN_TYPES.ACCESS, next }) => {
-  const [bearer, token] = authorization.split(' ') || [];
+export const decodeToken = async ({ authorization, tokenType = TOKEN_TYPES.ACCESS, next }) => {
+  const [bearer, token] = authorization?.split(' ') || [];
 
   if (!bearer || !token) {
     return next(new AppError(message.user.Unauthorize, 401));
@@ -38,4 +38,4 @@ export const decodeToken = asyncHandler(async ({ authorization, tokenType = TOKE
   }
 
   return user;
-});
+};

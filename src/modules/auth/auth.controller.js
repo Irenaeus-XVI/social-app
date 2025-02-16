@@ -12,5 +12,4 @@ authRouter.get('/refresh-token', registerRoutes.refreshToken);
 authRouter.patch('/forget-password', validation(validators.forgetPassword), registerRoutes.forgetPassword);
 authRouter.patch('/validate-forget-password', validation(validators.validateForgetPassword), registerRoutes.validateForgetPasswordCode);
 authRouter.patch('/reset-password', validation(validators.resetPassword), registerRoutes.resetPassword);
-
 export default authRouter;  

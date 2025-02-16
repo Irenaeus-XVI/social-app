@@ -12,6 +12,9 @@ const userSchema = new Schema({
     required: true,
     unique: true,
   },
+  tempEmail: {
+    type: String,
+  },
   password: {
     type: String,
     required: (data) => {

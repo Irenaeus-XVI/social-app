@@ -3,11 +3,12 @@ import { createOTP, generateHash } from "../security/index.js";
 import { userModel } from "../../database/model/index.js";
 import { sendEmail, verifyAccountTemplate } from "../email/index.js";
 import * as dbService from "../../database/db.service.js";
-import { CONFIRM_EMAIL_OTP, FORGET_PASSWORD_OTP } from "../../common/constants/index.js";
+import { CONFIRM_EMAIL_OTP, FORGET_PASSWORD_OTP, UPDATE_EMAIL_OTP } from "../../common/constants/index.js";
 export const emailEvent = new EventEmitter();
 const emailSubject = {
   confirm: "Confirm-Email",
   forget: "Forget-Password",
+  update: "Update-Email",
 };
 
 emailEvent.on("sendConfirmEmail", async (data) => {
@@ -18,6 +19,9 @@ emailEvent.on("sendForgetPassword", async (data) => {
   await sendCode(data, emailSubject.forget, FORGET_PASSWORD_OTP);
 });
 
+emailEvent.on("sendUpdateEmail", async (data) => {
+  await sendCode(data, emailSubject.update, UPDATE_EMAIL_OTP);
+});
 
 
 export const sendCode = async (data = {}, subject = emailSubject.confirm, type = 'confirmEmailOTP') => {
