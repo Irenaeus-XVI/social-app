@@ -4,7 +4,7 @@ import * as dbService from "../../../database/db.service.js";
 import { userModel } from "../../../database/model/index.js";
 import { CONFIRM_EMAIL_OTP, message, UPDATE_EMAIL_OTP } from "../../../common/constants/index.js";
 import { emailEvent } from "../../../utils/events/email.event.js";
-import { validateOTP } from "../../../utils/security/otp.security.js";
+import { compareHash, generateHash, validateOTP } from "../../../utils/security/index.js";
 export const profile = asyncHandler(async (req, res, next) => {
   const user = await dbService.findOne({
     model: userModel, filter: { _id: req.user._id }, select: "-password", populate: [{
@@ -63,7 +63,7 @@ export const updateEmail = asyncHandler(async (req, res, next) => {
 export const resetEmail = asyncHandler(async (req, res, next) => {
   const { oldCode, newCode } = req.body;
 
-  await validateOTP({ email: req.user.email, code: oldCode, type:  CONFIRM_EMAIL_OTP});
+  await validateOTP({ email: req.user.email, code: oldCode, type: CONFIRM_EMAIL_OTP });
   await validateOTP({ email: req.user.tempEmail, code: newCode, type: UPDATE_EMAIL_OTP });
 
   await dbService.updateOne({
@@ -72,4 +72,22 @@ export const resetEmail = asyncHandler(async (req, res, next) => {
     data: { email: req.user.tempEmail, tempEmail: null, changeCredentialTime: Date.now() },
   });
   return successResponse({ res, status: 200, message: message.user.EmailUpdated });
+});
+
+export const updatePassword = asyncHandler(async (req, res, next) => {
+  const { oldPassword, newPassword } = req.body;
+
+  if (!compareHash({ plainText: oldPassword, hash: req.user.password })) {
+    return next(new AppError(message.user.WrongPassword, 400));
+  }
+
+  const hashPassword = generateHash({ plainText: newPassword });
+
+  await dbService.updateOne({
+    model: userModel,
+    filter: { _id: req.user._id },
+    data: { password: hashPassword, changeCredentialTime: Date.now() },
+  });
+
+  return successResponse({ res, status: 200, message: message.user.Password_Updated });
 });

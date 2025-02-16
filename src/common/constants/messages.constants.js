@@ -23,6 +23,8 @@ export const message = {
     Forbidden: 'Forbidden!',
     Banned: 'User is banned!',
     EmailUpdated: 'Email updated successfully!',
+    WrongPassword: 'Wrong password!',
+    Password_Updated: 'Password updated successfully!',
   },
   INVALID_OBJECT_ID: 'Invalid object id!',
   OTP:{
