@@ -9,4 +9,5 @@ router.get("/profile/:id", validateMongoId, authMiddleware(), userService.shareP
 router.patch('/update-email', validation(validators.updateEmail), authMiddleware(), userService.updateEmail);
 router.patch('/reset-email', validation(validators.resetEmail), authMiddleware(), userService.resetEmail);
 router.patch('/update-password', validation(validators.updatePassword), authMiddleware(), userService.updatePassword);
+router.patch('/profile', validation(validators.updateProfile), authMiddleware(), userService.updateProfile);
 export default router; 

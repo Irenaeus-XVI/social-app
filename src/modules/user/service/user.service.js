@@ -91,3 +91,15 @@ export const updatePassword = asyncHandler(async (req, res, next) => {
 
   return successResponse({ res, status: 200, message: message.user.Password_Updated });
 });
+
+export const updateProfile = asyncHandler(async (req, res, next) => {
+
+  const user = await dbService.findOneAndUpdate({
+    model: userModel,
+    id: req.user._id,
+    data: req.body,
+    select: "-password",
+  });
+
+  return user ? successResponse({ res, status: 200, data: user }) : next(new AppError(message.user.NotFound, 404));
+});
