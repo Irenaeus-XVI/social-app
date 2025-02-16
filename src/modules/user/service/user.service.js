@@ -63,7 +63,7 @@ export const updateEmail = asyncHandler(async (req, res, next) => {
 export const resetEmail = asyncHandler(async (req, res, next) => {
   const { oldCode, newCode } = req.body;
 
-  // await validateOTP({ email: req.user.email, code: oldCode, type:  CONFIRM_EMAIL_OTP});
+  await validateOTP({ email: req.user.email, code: oldCode, type:  CONFIRM_EMAIL_OTP});
   await validateOTP({ email: req.user.tempEmail, code: newCode, type: UPDATE_EMAIL_OTP });
 
   await dbService.updateOne({
