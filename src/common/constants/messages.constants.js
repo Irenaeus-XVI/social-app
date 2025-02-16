@@ -21,6 +21,11 @@ export const message = {
     OTP_Verified: 'OTP verified successfully!',
     Password_Updated: 'Password updated successfully!',
     Forbidden: 'Forbidden!',
+    Banned: 'User is banned!',
   },
   INVALID_OBJECT_ID: 'Invalid object id!',
+  OTP:{
+    ...generateMessage('OTP'),
+    OTP_Expired: 'OTP expired!',
+  }
 };

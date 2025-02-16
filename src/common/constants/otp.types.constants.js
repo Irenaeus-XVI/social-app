@@ -1,0 +1,7 @@
+export const OTP_TYPES = {
+  CONFIRM_EMAIL: 'confirmEmail',
+  FORGET_PASSWORD: 'forgetPassword'
+};
+
+export const CONFIRM_EMAIL_OTP = OTP_TYPES.CONFIRM_EMAIL;
+export const FORGET_PASSWORD_OTP = OTP_TYPES.FORGET_PASSWORD;

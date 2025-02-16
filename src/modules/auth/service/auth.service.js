@@ -4,9 +4,10 @@ import { compareHash, decodeToken, generateHash, generateToken, verifyToken } fr
 import { asyncHandler } from "../../../utils/response/error.response.js";
 import { emailEvent } from "../../../utils/events/email.event.js";
 import { successResponse } from "../../../utils/response/success.response.js";
-import { GOOGLE_PROVIDER, LOCAL_PROVIDER, message, ROLE, TOKEN_TYPES } from "../../../common/constants/index.js";
+import { CONFIRM_EMAIL_OTP, FORGET_PASSWORD_OTP, GOOGLE_PROVIDER, LOCAL_PROVIDER, message, ROLE, TOKEN_TYPES } from "../../../common/constants/index.js";
 import { OAuth2Client } from 'google-auth-library';
 import * as dbService from "../../../database/db.service.js";
+import { validateOTP } from "../../../utils/security/otp.security.js";
 
 export const register = asyncHandler(async (req, res, next) => {
   const { userName, email, password } = req.body;
@@ -51,15 +52,12 @@ export const confirmEmail = asyncHandler(async (req, res, next) => {
   }
   console.log(code);
 
-  const isMatch = compareHash({ plainText: code, hash: isExist.confirmEmailOTP });
-  if (!isMatch) {
-    return next(new AppError(message.user.InvalidOTP, 400));
-  }
+  await validateOTP({ email, code, type: CONFIRM_EMAIL_OTP });
 
   await dbService.updateOne({
     model: userModel,
     filter: { email },
-    data: { confirmEmail: true, $unset: { confirmEmailOTP: 0 } }
+    data: { confirmEmail: true }
   });
 
   return successResponse({ res, status: 200, message: message.user.ConfirmedSuccess });
@@ -207,7 +205,7 @@ export const forgetPassword = asyncHandler(async (req, res, next) => {
   if (!user.confirmEmail) {
     return next(new AppError(message.user.Verify, 400));
   }
-  emailEvent.emit("sendForgetPassword", { id: user._id, email });
+  emailEvent.emit("sendForgetPassword", { id: user._id, email, });
 
   return successResponse({ res, status: 200, message: message.user.OTP_Sent });
 
@@ -227,11 +225,8 @@ export const validateForgetPasswordCode = asyncHandler(async (req, res, next) =>
     return next(new AppError(message.user.Verify, 400));
   }
 
-  const isMatch = compareHash({ plainText: code, hash: user.forgetPasswordOTP });
+  await validateOTP({ email, code, type: FORGET_PASSWORD_OTP });
 
-  if (!isMatch) {
-    return next(new AppError(message.user.InvalidOTP, 400));
-  }
   return successResponse({ res, status: 200, message: message.user.OTP_Verified });
 
 });
@@ -247,16 +242,13 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
   if (!user.confirmEmail) {
     return next(new AppError(message.user.Verify, 400));
   }
-  const isMatch = compareHash({ plainText: code, hash: user.forgetPasswordOTP });
-  if (!isMatch) {
-    return next(new AppError(message.user.InvalidOTP, 400));
-  }
+  await validateOTP({ email, code, type: FORGET_PASSWORD_OTP });
   const hashPassword = generateHash({ plainText: password });
   await dbService.updateOne(
     {
       model: userModel,
       filter: { email },
-      data: { password: hashPassword, changeCredentialTime: Date.now(), $unset: { forgetPasswordOTP: 0 } }
+      data: { password: hashPassword, changeCredentialTime: Date.now() }
     }
   );
 

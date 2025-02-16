@@ -12,12 +12,6 @@ const userSchema = new Schema({
     required: true,
     unique: true,
   },
-  confirmEmailOTP: {
-    type: String,
-  },
-  forgetPasswordOTP: {
-    type: String,
-  },
   password: {
     type: String,
     required: (data) => {

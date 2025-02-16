@@ -10,8 +10,8 @@ export const find = async ({ model, filter = {}, select = "", populate = [], ski
   return document;
 }
 
-export const findOne = async ({ model, filter = {}, select = "", populate = [] } = {}) => {
-  const document = await model.findOne(filter).select(select).populate(populate).lean();
+export const findOne = async ({ model, filter = {}, select = "", populate = [], lean = true } = {}) => {
+  const document = await model.findOne(filter).select(select).populate(populate).lean(lean);
   return document;
 }
 
