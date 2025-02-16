@@ -98,6 +98,7 @@ export const updateProfile = asyncHandler(async (req, res, next) => {
     model: userModel,
     id: req.user._id,
     data: req.body,
+    options: { new: true },
     select: "-password",
   });
 
