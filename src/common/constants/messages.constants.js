@@ -30,5 +30,9 @@ export const message = {
   OTP:{
     ...generateMessage('OTP'),
     OTP_Expired: 'OTP expired!',
+  },
+  post:{
+    ...generateMessage('Post'),
+    created: 'Post created successfully!',
   }
 };

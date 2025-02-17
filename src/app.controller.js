@@ -1,7 +1,8 @@
 import connectDb from "../src/database/connection.js";
 import { globalErrorHandling } from "./middleware/index.js";
-import authRouter from "./modules/auth/auth.controller.js";
-import userRouter from "./modules/user/user.controller.js";
+import authController from "./modules/auth/auth.controller.js";
+import userController from "./modules/user/user.controller.js";
+import postController from "./modules/post/post.controller.js";
 import cors from 'cors';
 import path from 'node:path';
 const bootstrap = (app, express) => {
@@ -10,8 +11,9 @@ const bootstrap = (app, express) => {
   app.use(express.json());
   app.get('/', (req, res) => res.send('Hello World!'))
 
-  app.use('/auth', authRouter);
-  app.use('/user', userRouter);
+  app.use('/auth', authController);
+  app.use('/user', userController);
+  app.use('/post', postController);
   app.all('*', (req, res) => {
     res.status(404).json({ message: 'Route not found' });
   });
