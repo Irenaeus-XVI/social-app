@@ -44,5 +44,7 @@ export const message = {
     ...generateMessage('Comment'),
     created: 'Comment created successfully!',
     updated: 'Comment updated successfully!',
+    freezed: 'Comment freezed successfully!',
+    restored: 'Comment restored successfully!',
   }
 };

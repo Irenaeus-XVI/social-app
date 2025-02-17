@@ -27,4 +27,19 @@ router.patch("/:commentId",
   validation(validators.updateComment),
   commentService.updateComment
 );
+
+router.delete("/:commentId/freeze",
+  authMiddleware(),
+  authorizationMiddleware([ROLE.ADMIN, ROLE.USER]),
+  validateMongoId('id', 'commentId'),
+  commentService.freezeComment
+);
+
+router.patch("/:commentId/restore",
+  authMiddleware(),
+  authorizationMiddleware([ROLE.ADMIN, ROLE.USER]),
+  validateMongoId('id', 'commentId'),
+  commentService.restoreComment
+);
+
 export default router;

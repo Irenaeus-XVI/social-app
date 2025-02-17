@@ -62,3 +62,54 @@ export const updateComment = asyncHandler(async (req, res, next) => {
   });
   return successResponse({ res, status: 200, data: updatedComment, message: message.comment.updated });
 });
+
+
+export const freezeComment = asyncHandler(async (req, res, next) => {
+  const comment = await dbService.findOne({
+    model: commentModel,
+    filter: { _id: req.params.commentId, isDeleted: { $exists: false } },
+    populate: [{ path: 'postId', select: 'createdBy' }]
+  });
+
+  if (!comment) return next(new AppError(message.comment.NotFound, 404));
+
+  if (req.user.role !== 'ADMIN' &&
+    comment.createdBy.toString() !== req.user._id.toString() &&
+    comment.postId.createdBy.toString() !== req.user._id.toString()) {
+    return next(new AppError(message.user.Forbidden, 403));
+  }
+
+  const updatedComment = await dbService.findOneAndUpdate({
+    model: commentModel,
+    filter: { _id: req.params.commentId },
+    data: { isDeleted: true, deletedBy: req.user._id },
+    options: { new: true }
+  });
+
+  return successResponse({ res, status: 200, data: updatedComment, message: message.comment.freeze });
+});
+
+export const restoreComment = asyncHandler(async (req, res, next) => {
+  const comment = await dbService.findOne({
+    model: commentModel,
+    filter: { _id: req.params.commentId, isDeleted: true, deletedBy: req.user._id },
+    populate: [{ path: 'postId', select: 'createdBy' }]
+  });
+
+  if (!comment) return next(new AppError(message.comment.NotFound, 404));
+
+  if (req.user.role !== 'ADMIN' &&
+    comment.createdBy.toString() !== req.user._id.toString() &&
+    comment.postId.createdBy.toString() !== req.user._id.toString()) {
+    return next(new AppError(message.user.Forbidden, 403));
+  }
+
+  const updatedComment = await dbService.findOneAndUpdate({
+    model: commentModel,
+    filter: { _id: req.params.commentId, isDeleted: true, deletedBy: req.user._id },
+    data: { $unset: { deletedBy: 0, isDeleted: 0 }, updatedBy: req.user._id },
+    options: { new: true }
+  });
+
+  return successResponse({ res, status: 200, data: updatedComment, message: message.comment.restore });
+});
