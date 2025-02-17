@@ -35,5 +35,7 @@ export const message = {
     ...generateMessage('Post'),
     created: 'Post created successfully!',
     updated: 'Post updated successfully!',
+    freezed: 'Post freezed successfully!',
+    restored: 'Post restored successfully!',
   }
 };

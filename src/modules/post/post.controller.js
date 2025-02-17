@@ -15,7 +15,7 @@ router.post('/',
   postService.createPost);
 
 
-  router.patch('/:id',
+router.patch('/:id',
   authMiddleware(),
   authorizationMiddleware(ROLE.USER),
   validateMongoId,
@@ -23,4 +23,16 @@ router.post('/',
   validation(validator.updatePost),
   postService.updatePost);
 
+
+router.patch('/:id/freezed',
+  authMiddleware(),
+  authorizationMiddleware([ROLE.USER, ROLE.ADMIN]),
+  validateMongoId,
+  postService.freezedPost);
+
+router.patch('/:id/restore',
+  authMiddleware(),
+  authorizationMiddleware([ROLE.USER, ROLE.ADMIN]),
+  validateMongoId,
+  postService.restorePost);
 export default router;
