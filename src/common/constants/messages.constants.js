@@ -39,5 +39,10 @@ export const message = {
     restored: 'Post restored successfully!',
     liked: 'Post liked successfully!',
     unlike: 'Post unlike successfully!',
+  },
+  comment:{
+    ...generateMessage('Comment'),
+    created: 'Comment created successfully!',
+    updated: 'Comment updated successfully!',
   }
 };

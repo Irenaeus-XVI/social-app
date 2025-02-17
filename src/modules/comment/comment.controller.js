@@ -1,6 +1,6 @@
 import { Router } from "express";
 import * as commentService from './service/comment.service.js';
-import { authMiddleware, authorizationMiddleware, validation } from "../../middleware/index.js";
+import { authMiddleware, authorizationMiddleware, validateMongoId, validation } from "../../middleware/index.js";
 import { ROLE } from "../../common/constants/index.js";
 import { uploadCloudFile } from "../../utils/multer/cloud.multer.js";
 import * as validators from './comment.validation.js';
@@ -17,5 +17,14 @@ router.post("/",
   uploadCloudFile().array('attachment', 2),
   validation(validators.createComment),
   commentService.createComment
+);
+
+router.patch("/:commentId",
+  authMiddleware(),
+  authorizationMiddleware(ROLE.USER),
+  validateMongoId('id', 'commentId'),
+  uploadCloudFile().array('attachment', 2),
+  validation(validators.updateComment),
+  commentService.updateComment
 );
 export default router;
