@@ -25,7 +25,7 @@ router.post('/',
 router.patch('/:id',
   authMiddleware(),
   authorizationMiddleware(ROLE.USER),
-  validateMongoId,
+  validateMongoId('id'), 
   uploadCloudFile().array('attachment', 2),
   validation(validator.updatePost),
   postService.updatePost);
@@ -34,24 +34,24 @@ router.patch('/:id',
 router.patch('/:id/freezed',
   authMiddleware(),
   authorizationMiddleware([ROLE.USER, ROLE.ADMIN]),
-  validateMongoId,
+  validateMongoId('id'),
   postService.freezedPost);
 
 router.patch('/:id/restore',
   authMiddleware(),
   authorizationMiddleware([ROLE.USER, ROLE.ADMIN]),
-  validateMongoId,
+  validateMongoId('id'),
   postService.restorePost);
 
 router.patch('/:id/like',
   authMiddleware(),
   authorizationMiddleware(ROLE.USER),
-  validateMongoId,
+  validateMongoId('id'),
   postService.likePost);
 
 router.patch('/:id/unlike',
   authMiddleware(),
   authorizationMiddleware(ROLE.USER),
-  validateMongoId,
+  validateMongoId('id'),
   postService.unlikePost);
 export default router;
