@@ -12,7 +12,7 @@ export const getPosts = asyncHandler(async (req, res) => {
     filter: { isDeleted: { $exists: false } },
     populate: [
       { path: "createdBy", select: "userName email image.secure_url" },
-      {path:'likes', select: 'userName email image.secure_url'},
+      { path: 'likes', select: 'userName email image.secure_url' },
     ]
   });
 
@@ -22,7 +22,10 @@ export const getPosts = asyncHandler(async (req, res) => {
 
 export const createPost = asyncHandler(async (req, res) => {
   const { content } = req.body;
-  const attachments = await uploadImages(req);
+  const attachments = await uploadImages({
+    req,
+    path: `/user/${req.user._id}/post`
+  });
 
   const post = await dbService.create({
     model: postModel,
@@ -48,7 +51,10 @@ export const updatePost = asyncHandler(async (req, res, next) => {
   if (!post) return next(new AppError(message.post.NotFound, 404));
 
   if (req.files.length) {
-    req.body.attachments = await uploadImages(req);
+    req.body.attachments = await uploadImages({
+      req,
+      path: `/user/${req.user._id}/post`
+    });
   }
 
 

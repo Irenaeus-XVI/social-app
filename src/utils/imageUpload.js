@@ -5,9 +5,11 @@ export const uploadImage = async (req) => {
   return { secure_url, public_id };
 };
 
-export const uploadImages = async (req) => {
+export const uploadImages = async ({ req, path = '' } = {}) => {
+  console.log({ folder: `${process.env.APP_NAME}/${path}` });
+  
   const files = req.files.map(async (file) => {
-    const { secure_url, public_id } = await cloud.uploader.upload(file.path, { folder: `${process.env.APP_NAME}/user/${req.user._id}/post` });
+    const { secure_url, public_id } = await cloud.uploader.upload(file.path, { folder: `${process.env.APP_NAME}/${path}` });
     return { secure_url, public_id };
   });
   return Promise.all(files);
