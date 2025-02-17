@@ -11,7 +11,7 @@ const router = Router({
 
 
 
-router.post("/",
+router.post("/:commentId?",
   authMiddleware(),
   authorizationMiddleware(ROLE.USER),
   uploadCloudFile().array('attachment', 2),

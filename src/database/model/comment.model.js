@@ -32,6 +32,10 @@ const commentSchema = new Schema({
     ref: 'Post',
     required: true,
   },
+  commentId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Comment',
+  },
   updatedBy: {
     type: Schema.Types.ObjectId,
     ref: 'User',
@@ -42,6 +46,12 @@ const commentSchema = new Schema({
   },
 
   isDeleted: Boolean,
-}, { timestamps: true });
+}, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
+
+commentSchema.virtual('reply', {
+  ref: 'Comment',
+  localField: '_id',
+  foreignField: 'commentId',
+});
 
 export const commentModel = mongoose.models.Comment || model('Comment', commentSchema);

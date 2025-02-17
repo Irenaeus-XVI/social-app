@@ -13,7 +13,12 @@ export const getPosts = asyncHandler(async (req, res) => {
     populate: [
       { path: "createdBy", select: "userName email image.secure_url" },
       { path: 'likes', select: 'userName email image.secure_url' },
-      { path: 'comments', match: { isDeleted: { $exists: false } } }
+      {
+        path: 'comments', match: { isDeleted: { $exists: false }, commentId: { $exists: false } },
+        populate: [
+          { path: 'reply', match: { isDeleted: { $exists: false } } }
+        ]
+      }
     ]
   });
 

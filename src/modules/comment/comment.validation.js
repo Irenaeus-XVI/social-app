@@ -5,6 +5,7 @@ import Joi from "joi";
 export const createComment = Joi.object({
   id: Joi.string().required(),
   content: Joi.string().trim().min(2).max(1000),
+  commentId: Joi.string(),
   file: Joi.array().items(
     Joi.object().keys({
       fieldname: Joi.string().valid('attachment').required(),

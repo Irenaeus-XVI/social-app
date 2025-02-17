@@ -9,7 +9,11 @@ import { uploadImages } from '../../../utils/imageUpload.js';
 
 export const createComment = asyncHandler(async (req, res, next) => {
 
-  const { id } = req.params;
+  const { id, commentId } = req.params;
+
+  if (commentId && !await dbService.findOne({ model: commentModel, filter: { _id: commentId, postId: id, isDeleted: { $exists: false } } })) {
+    return next(new AppError(message.comment.NotFound, 404));
+  };
 
   const post = await dbService.findOne({
     model: postModel,
@@ -30,7 +34,8 @@ export const createComment = asyncHandler(async (req, res, next) => {
     data: {
       ...req.body,
       postId: id,
-      createdBy: req.user._id
+      createdBy: req.user._id,
+      commentId
     }
   });
   return successResponse({ res, status: 201, data: comment, message: message.comment.created });
