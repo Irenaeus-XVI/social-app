@@ -37,5 +37,7 @@ export const message = {
     updated: 'Post updated successfully!',
     freezed: 'Post freezed successfully!',
     restored: 'Post restored successfully!',
+    liked: 'Post liked successfully!',
+    unlike: 'Post unlike successfully!',
   }
 };

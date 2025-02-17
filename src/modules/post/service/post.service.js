@@ -5,6 +5,21 @@ import { postModel } from "../../../database/model/index.js";
 import { message, ROLE } from "../../../common/constants/index.js";
 import { AppError } from "../../../utils/appError.js";
 
+
+export const getPosts = asyncHandler(async (req, res) => {
+  const posts = await dbService.find({
+    model: postModel,
+    filter: { isDeleted: { $exists: false } },
+    populate: [
+      { path: "createdBy", select: "userName email image.secure_url" },
+      {path:'likes', select: 'userName email image.secure_url'},
+    ]
+  });
+
+  return successResponse({ res, status: 200, data: posts });
+});
+
+
 export const createPost = asyncHandler(async (req, res) => {
   const { content } = req.body;
   const attachments = await uploadImages(req);
@@ -74,3 +89,30 @@ export const restorePost = asyncHandler(async (req, res, next) => {
 
   return successResponse({ res, status: 200, data: post, message: message.post.restored })
 });
+
+
+export const likePost = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+
+  const post = await dbService.findOneAndUpdate({
+    model: postModel,
+    filter: { _id: id, isDeleted: { $exists: false } },
+    data: { $addToSet: { likes: req.user._id } },
+    options: { new: true }
+  });
+
+  return successResponse({ res, status: 200, data: post, message: message.post.liked })
+});
+
+export const unlikePost = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+
+  const post = await dbService.findOneAndUpdate({
+    model: postModel,
+    filter: { _id: id, isDeleted: { $exists: false } },
+    data: { $pull: { likes: req.user._id } },
+    options: { new: true }
+  })
+
+  return successResponse({ res, status: 200, data: post, message: message.post.unlike })
+}); 

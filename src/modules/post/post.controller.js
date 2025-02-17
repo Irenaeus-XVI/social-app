@@ -7,6 +7,11 @@ import { ROLE } from "../../common/constants/role.constant.js";
 const router = Router();
 
 
+router.get('/',
+  authMiddleware(),
+  postService.getPosts);
+
+
 router.post('/',
   authMiddleware(),
   authorizationMiddleware(ROLE.USER),
@@ -35,4 +40,16 @@ router.patch('/:id/restore',
   authorizationMiddleware([ROLE.USER, ROLE.ADMIN]),
   validateMongoId,
   postService.restorePost);
+
+router.patch('/:id/like',
+  authMiddleware(),
+  authorizationMiddleware(ROLE.USER),
+  validateMongoId,
+  postService.likePost);
+
+router.patch('/:id/unlike',
+  authMiddleware(),
+  authorizationMiddleware(ROLE.USER),
+  validateMongoId,
+  postService.unlikePost);
 export default router;
