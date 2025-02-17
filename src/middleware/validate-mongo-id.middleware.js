@@ -7,7 +7,7 @@ export const validateMongoId = (req, res, next) => {
   console.log(id);
   
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return next(new AppError(message.user.InvalidId, 400));
+    return next(new AppError(message.INVALID_OBJECT_ID, 400));
   }
   next();
 }

@@ -34,5 +34,6 @@ export const message = {
   post:{
     ...generateMessage('Post'),
     created: 'Post created successfully!',
+    updated: 'Post updated successfully!',
   }
 };
