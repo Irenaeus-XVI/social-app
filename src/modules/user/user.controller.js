@@ -5,6 +5,7 @@ import * as validators from './user.validation.js';
 import { uploadCloudFile, uploadFileDisk } from "../../utils/multer/index.js";
 const router = Router();
 
+router.get("/profile/dashboard", authMiddleware(), userService.dashboard);
 router.get("/profile", authMiddleware(), userService.profile);
 router.get("/profile/:id", validateMongoId, authMiddleware(), userService.shareProfile);
 router.patch('/update-email', validation(validators.updateEmail), authMiddleware(), userService.updateEmail);

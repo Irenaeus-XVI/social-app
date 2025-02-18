@@ -1,11 +1,46 @@
 import { asyncHandler } from "../../../utils/response/index.js";
 import { successResponse } from "../../../utils/response/index.js";
 import * as dbService from "../../../database/db.service.js";
-import { userModel } from "../../../database/model/index.js";
+import { postModel, userModel } from "../../../database/model/index.js";
 import { CONFIRM_EMAIL_OTP, message, UPDATE_EMAIL_OTP } from "../../../common/constants/index.js";
 import { emailEvent } from "../../../utils/events/email.event.js";
 import { compareHash, generateHash, validateOTP } from "../../../utils/security/index.js";
 import { destroyImage, uploadImage } from "../../../utils/imageUpload.js";
+
+
+export const dashboard = asyncHandler(async (req, res, next) => {
+  const [userResult, postResult] = await Promise.allSettled([
+    dbService.find({
+      model: userModel,
+      select: "-password",
+      populate: [{ path: "viewers.userId", select: "userName image email" }]
+    }),
+    dbService.find({
+      model: postModel,
+    })
+  ]);
+
+  const userData = userResult.status === "fulfilled" ? userResult.value : [];
+  const postsData = postResult.status === "fulfilled" ? postResult.value : [];
+
+  if (userResult.status === "rejected") {
+    console.error("User fetch error:", userResult.reason);
+  }
+  if (postResult.status === "rejected") {
+    console.error("Posts fetch error:", postResult.reason);
+  }
+
+  return successResponse({
+    res,
+    status: 200,
+    data: {
+      users: userData,
+      posts: postsData
+    }
+  });
+});
+
+
 export const profile = asyncHandler(async (req, res, next) => {
   const user = await dbService.findOne({
     model: userModel, filter: { _id: req.user._id }, select: "-password", populate: [{
