@@ -91,13 +91,13 @@ export const login = asyncHandler(async (req, res, next) => {
     role: user.role
   };
 
-  const accessTokenSignature = user.role === ROLE.ADMIN ? process.env.ADMIN_ACCESS_TOKEN : process.env.USER_ACCESS_TOKEN;
+  const accessTokenSignature = [ROLE.ADMIN, ROLE.SUPER_ADMIN].includes(user.role) ? process.env.ADMIN_ACCESS_TOKEN : process.env.USER_ACCESS_TOKEN;
   const accessToken = generateToken({
     payload: tokenPayload,
     signature: accessTokenSignature,
   });
 
-  const refreshTokenSignature = user.role === ROLE.ADMIN ? process.env.ADMIN_REFRESH_TOKEN : process.env.USER_REFRESH_TOKEN;
+  const refreshTokenSignature = [ROLE.ADMIN, ROLE.SUPER_ADMIN].includes(user.role) ? process.env.ADMIN_REFRESH_TOKEN : process.env.USER_REFRESH_TOKEN;
   const refreshToken = generateToken({
     payload: tokenPayload,
     signature: refreshTokenSignature,

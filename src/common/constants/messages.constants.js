@@ -46,5 +46,9 @@ export const message = {
     updated: 'Comment updated successfully!',
     freezed: 'Comment freezed successfully!',
     restored: 'Comment restored successfully!',
+  },
+  role:{
+    ...generateMessage('Role'),
+    change: 'Role changed successfully!',
   }
 };

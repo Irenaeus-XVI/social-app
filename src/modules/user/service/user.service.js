@@ -2,10 +2,11 @@ import { asyncHandler } from "../../../utils/response/index.js";
 import { successResponse } from "../../../utils/response/index.js";
 import * as dbService from "../../../database/db.service.js";
 import { postModel, userModel } from "../../../database/model/index.js";
-import { CONFIRM_EMAIL_OTP, message, UPDATE_EMAIL_OTP } from "../../../common/constants/index.js";
+import { CONFIRM_EMAIL_OTP, message, ROLE, UPDATE_EMAIL_OTP } from "../../../common/constants/index.js";
 import { emailEvent } from "../../../utils/events/email.event.js";
 import { compareHash, generateHash, validateOTP } from "../../../utils/security/index.js";
 import { destroyImage, uploadImage } from "../../../utils/imageUpload.js";
+import { AppError } from "../../../utils/appError.js";
 
 
 export const dashboard = asyncHandler(async (req, res, next) => {
@@ -40,6 +41,19 @@ export const dashboard = asyncHandler(async (req, res, next) => {
   });
 });
 
+export const changeRole = asyncHandler(async (req, res, next) => {
+  const { role } = req.body;
+  const roles = role === ROLE.SUPER_ADMIN ?
+    { role: { $nin: [ROLE.SUPER_ADMIN] } } :
+    { role: { $nin: [ROLE.SUPER_ADMIN, ROLE.ADMIN] } };
+  const user = await dbService.findOneAndUpdate({
+    model: userModel,
+    filter: { _id: req.params.userId, ...roles },
+    data: { role, updatedBy: req.user._id },
+  });
+
+  return user ? successResponse({ res, status: 200, data: user, message: message.role.change }) : next(new AppError(message.user.NotFound, 404));
+});
 
 export const profile = asyncHandler(async (req, res, next) => {
   const user = await dbService.findOne({
