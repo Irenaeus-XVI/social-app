@@ -6,7 +6,9 @@ import { uploadCloudFile } from "../../utils/multer/cloud.multer.js";
 import * as validators from './comment.validation.js';
 
 const router = Router({
-  mergeParams: true
+  mergeParams: true,
+  strict: true,
+  caseSensitive: true
 });
 
 
