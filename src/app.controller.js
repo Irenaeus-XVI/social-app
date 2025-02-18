@@ -8,7 +8,7 @@ import path from 'node:path';
 import rateLimit from "express-rate-limit";
 import { AppError } from "./utils/appError.js";
 import { message } from "./common/constants/messages.constants.js";
-
+import helmet from "helmet";
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -20,6 +20,7 @@ const limiter = rateLimit({
 });
 const bootstrap = (app, express) => {
   app.use(cors());
+  app.use(helmet());
   app.use('/post', limiter);
   app.use('/uploads', express.static(path.resolve('./src/uploads')));
   app.use(express.json());
