@@ -5,10 +5,39 @@ export const create = async ({ model, data = {} } = {}) => {
 
 
 
-export const find = async ({ model, filter = {}, select = "", populate = [], skip = 0, limit = 20 } = {}) => {
-  const document = await model.find(filter).select(select).populate(populate).skip(skip).limit(limit);
-  return document;
-}
+export const find = async ({
+  model,
+  filter = {},
+  select = "",
+  populate = [],
+  query = { page: 1, limit: 5, paginate: true, sort: {} },
+} = {}) => {
+  let { page = 1, limit = 5, paginate = true, sort } = query;
+
+  let queryDoc = model.find(filter).select(select).populate(populate).sort(sort);
+  page = Number(page);
+  limit = Number(limit);
+  paginate = paginate === "true" || paginate === true;
+  if (isNaN(page) || page < 1) page = 1;
+  if (isNaN(limit) || limit < 1) limit = 5;
+
+  const skip = limit * (page - 1);
+
+  if (paginate) {
+    console.log(paginate);
+    queryDoc = queryDoc.skip(skip).limit(limit);
+  }
+
+  const documents = await queryDoc.lean().exec();
+  const totalDocuments = paginate ? await model.countDocuments(filter) : documents.length
+  return {
+    data: documents,
+    numberOfRecords: totalDocuments,
+    numberOfPages: Math.ceil(totalDocuments / limit),
+    currentPage: page
+  };
+};
+
 
 export const findOne = async ({ model, filter = {}, select = "", populate = [], lean = true } = {}) => {
   const document = await model.findOne(filter).select(select).populate(populate).lean(lean);

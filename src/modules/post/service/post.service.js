@@ -1,5 +1,5 @@
 import { uploadImages } from "../../../utils/imageUpload.js";
-import { asyncHandler, successResponse } from "../../../utils/response/index.js";
+import { asyncHandler, listAllSuccessResponse, successResponse } from "../../../utils/response/index.js";
 import * as dbService from "../../../database/db.service.js";
 import { postModel } from "../../../database/model/index.js";
 import { message, ROLE } from "../../../common/constants/index.js";
@@ -7,6 +7,8 @@ import { AppError } from "../../../utils/appError.js";
 
 
 export const getPosts = asyncHandler(async (req, res) => {
+  const query = req.query;
+
   const posts = await dbService.find({
     model: postModel,
     filter: { isDeleted: { $exists: false } },
@@ -19,10 +21,19 @@ export const getPosts = asyncHandler(async (req, res) => {
           { path: 'reply', match: { isDeleted: { $exists: false } } }
         ]
       }
-    ]
+    ],
+    query
   });
 
-  return successResponse({ res, status: 200, data: posts });
+  return listAllSuccessResponse(
+    {
+      res, status: 200,
+      data: posts.data,
+      numberOfRecords: posts.numberOfRecords,
+      numberOfPages: posts.numberOfPages,
+      currentPage: posts.currentPage,
+    }
+  );
 });
 
 
