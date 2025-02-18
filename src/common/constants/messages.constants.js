@@ -50,5 +50,8 @@ export const message = {
   role:{
     ...generateMessage('Role'),
     change: 'Role changed successfully!',
+  },
+  common:{
+    tooManyRequest: 'Too many request!',
   }
 };
