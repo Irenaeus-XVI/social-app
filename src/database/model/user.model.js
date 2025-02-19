@@ -76,6 +76,10 @@ const userSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User",
   },
+  twoStepVerification: {
+    type: Boolean,
+    default: false,
+  },
 }, { timestamps: true });
 
-export const userModel = mongoose.model.User || model('User', userSchema);  
+export const userModel = mongoose.models.User || model('User', userSchema);  

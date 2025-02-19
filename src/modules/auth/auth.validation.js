@@ -44,3 +44,7 @@ export const resetPassword = Joi.object().keys({
     }),
   code: Joi.string().min(4).max(4).required(),
 }).required();
+
+export const confirmTwoStepVerification = Joi.object().keys({
+  code: Joi.string().min(4).max(4).required(),
+}).required();

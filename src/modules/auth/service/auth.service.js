@@ -4,7 +4,7 @@ import { compareHash, decodeToken, generateHash, generateToken, verifyToken } fr
 import { asyncHandler } from "../../../utils/response/error.response.js";
 import { emailEvent } from "../../../utils/events/email.event.js";
 import { successResponse } from "../../../utils/response/success.response.js";
-import { CONFIRM_EMAIL_OTP, FORGET_PASSWORD_OTP, GOOGLE_PROVIDER, LOCAL_PROVIDER, message, ROLE, TOKEN_TYPES } from "../../../common/constants/index.js";
+import { CONFIRM_EMAIL_OTP, FORGET_PASSWORD_OTP, GOOGLE_PROVIDER, LOCAL_PROVIDER, message, ROLE, TOKEN_TYPES, TWO_STEP_VERIFICATION_OTP } from "../../../common/constants/index.js";
 import { OAuth2Client } from 'google-auth-library';
 import * as dbService from "../../../database/db.service.js";
 import { validateOTP } from "../../../utils/security/otp.security.js";
@@ -76,13 +76,29 @@ export const login = asyncHandler(async (req, res, next) => {
     return next(new AppError(message.user.Verify, 400));
   }
 
-  console.log(user.password, password);
 
   const isPasswordValid = compareHash({ plainText: password, hash: user.password });
-  console.log(isPasswordValid);
 
   if (!isPasswordValid) {
     return next(new AppError(message.user.Invalid_Credentials, 404));
+  }
+
+  if(user.twoStepVerification){
+    emailEvent.emit("sendTwoStepVerification", { id: user._id, email });
+    return successResponse({ res, status: 200, message: message.user.OTP_Sent });
+  }
+
+  return successResponse({ res, status: 200, data: { access_token: accessToken, refresh_token: refreshToken } });
+});
+
+export const confirmLogin = asyncHandler(async (req, res, next) => {
+  const { email, code } = req.body;
+
+  await validateOTP({ email, code, type: TWO_STEP_VERIFICATION_OTP });
+
+  const user = await dbService.findOne({ model: userModel, filter: { email, isDeleted: false } });
+  if (!user) {
+    return next(new AppError(message.user.NotFound, 404));
   }
 
   const tokenPayload = {
@@ -97,7 +113,8 @@ export const login = asyncHandler(async (req, res, next) => {
     signature: accessTokenSignature,
   });
 
-  const refreshTokenSignature = [ROLE.ADMIN, ROLE.SUPER_ADMIN].includes(user.role) ? process.env.ADMIN_REFRESH_TOKEN : process.env.USER_REFRESH_TOKEN;
+  const refreshTokenSignature = [ROLE.ADMIN, ROLE.SUPER_ADMIN].includes(user.role) ? process.env.ADMIN_REFRESH_TOKEN : process.env
+    .USER_REFRESH_TOKEN;
   const refreshToken = generateToken({
     payload: tokenPayload,
     signature: refreshTokenSignature,
@@ -254,4 +271,30 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
 
   return successResponse({ res, status: 200, message: message.user.Password_Updated });
 
+});
+
+export const enableTwoStepVerification = asyncHandler(async (req, res, next) => {
+
+  const user = await dbService.findOne({
+    model: userModel,
+    filter: { _id: req.user._id },
+
+  })
+
+  emailEvent.emit("sendTwoStepVerification", { email: user.email });
+
+  return successResponse({ res, status: 200, message: message.user.OTP_Sent });
+});
+
+export const confirmTwoStepVerification = asyncHandler(async (req, res, next) => {
+  const { code } = req.body;
+  await validateOTP({ email: req.user.email, code, type: TWO_STEP_VERIFICATION_OTP });
+
+  await dbService.updateOne({
+    model: userModel,
+    filter: { _id: req.user._id },
+    data: { twoStepVerification: true },
+  });
+
+  return successResponse({ res, status: 200, message: message.user.TwoStepVerificationEnabled });
 });

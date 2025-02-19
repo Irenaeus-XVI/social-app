@@ -9,7 +9,7 @@ const router = Router();
 router.get("/profile/dashboard", authMiddleware(), authorizationMiddleware([ROLE.SUPER_ADMIN, ROLE.ADMIN]), userService.dashboard);
 router.get("/profile", authMiddleware(), userService.profile);
 router.patch("/:userId/profile/dashboard/role", validateMongoId('userId'), authorizationMiddleware([ROLE.SUPER_ADMIN, ROLE.ADMIN]), authMiddleware(), userService.changeRole);
-router.get("/profile/:id", validateMongoId, authMiddleware(), userService.shareProfile);
+router.get("/profile/:id", validateMongoId("id"), authMiddleware(), userService.shareProfile);
 router.patch('/update-email', validation(validators.updateEmail), authMiddleware(), userService.updateEmail);
 router.patch('/reset-email', validation(validators.resetEmail), authMiddleware(), userService.resetEmail);
 router.patch('/update-password', validation(validators.updatePassword), authMiddleware(), userService.updatePassword);
