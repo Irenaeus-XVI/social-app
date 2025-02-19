@@ -1,4 +1,5 @@
 import mongoose, { Schema, model } from 'mongoose';
+import { commentModel } from './comment.model.js';
 
 const postSchema = new Schema({
   content: {
@@ -50,5 +51,16 @@ postSchema.virtual('comments', {
   ref: 'Comment',
   justOne: true
 
+});
+
+postSchema.pre('findOneAndUpdate', async function (next) {
+  console.log('Middleware triggered:', this);
+
+  const update = this.getUpdate();
+  if (update.isDeleted) {
+    await commentModel.updateMany({ postId: this.getQuery()._id }, { isDeleted: true });
+  }
+
+  next();
 });
 export const postModel = mongoose.models.Post || model('Post', postSchema);

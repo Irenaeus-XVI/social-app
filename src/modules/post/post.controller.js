@@ -54,4 +54,10 @@ router.patch('/:id/unlike',
   authorizationMiddleware(ROLE.USER),
   validateMongoId('id'),
   postService.unlikePost);
+
+router.delete('/:id',
+  authMiddleware(),
+  authorizationMiddleware(ROLE.USER),
+  validateMongoId('id'),
+  postService.deletePost);
 export default router;

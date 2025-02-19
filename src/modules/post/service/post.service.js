@@ -138,4 +138,18 @@ export const unlikePost = asyncHandler(async (req, res, next) => {
   })
 
   return successResponse({ res, status: 200, data: post, message: message.post.unlike })
-}); 
+});
+
+export const deletePost = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+
+  const owner = req.user.role === ROLE.ADMIN ? {} : { createdBy: req.user._id };
+  const post = await dbService.findOneAndUpdate({
+    model: postModel,
+    filter: { _id: id, isDeleted: { $exists: false }, ...owner },
+    data: { isDeleted: true, updatedBy: req.user._id, deletedBy: req.user._id },
+    options: { new: true }
+  });
+
+  return successResponse({ res, status: 200, data: post, message: message.post.deleted })
+});
