@@ -83,10 +83,29 @@ export const login = asyncHandler(async (req, res, next) => {
     return next(new AppError(message.user.Invalid_Credentials, 404));
   }
 
-  if(user.twoStepVerification){
+  if (user.twoStepVerification) {
     emailEvent.emit("sendTwoStepVerification", { id: user._id, email });
     return successResponse({ res, status: 200, message: message.user.OTP_Sent });
   }
+  const tokenPayload = {
+    id: user._id,
+    email: user.email,
+    role: user.role
+  };
+
+  const accessTokenSignature = [ROLE.ADMIN, ROLE.SUPER_ADMIN].includes(user.role) ? process.env.ADMIN_ACCESS_TOKEN : process.env.USER_ACCESS_TOKEN;
+  const accessToken = generateToken({
+    payload: tokenPayload,
+    signature: accessTokenSignature,
+  });
+
+  const refreshTokenSignature = [ROLE.ADMIN, ROLE.SUPER_ADMIN].includes(user.role) ? process.env.ADMIN_REFRESH_TOKEN : process.env
+    .USER_REFRESH_TOKEN;
+  const refreshToken = generateToken({
+    payload: tokenPayload,
+    signature: refreshTokenSignature,
+    expiresIn: 31536000
+  });
 
   return successResponse({ res, status: 200, data: { access_token: accessToken, refresh_token: refreshToken } });
 });

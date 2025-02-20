@@ -27,7 +27,7 @@ export const postType = new GraphQLObjectType({
 });
 
 
-export const postList =new GraphQLList(postType);
+export const postList = new GraphQLList(postType);
 
 export const postListResponse = new GraphQLObjectType({
   name: 'postListResponse',
@@ -37,3 +37,13 @@ export const postListResponse = new GraphQLObjectType({
     data: { type: postList }
   }
 })
+
+
+export const likePostResponse = new GraphQLObjectType({
+  name: 'likePostResponse',
+  fields: {
+    status: { type: GraphQLInt },
+    message: { type: GraphQLString },
+    data: { type: postType }
+  }
+});

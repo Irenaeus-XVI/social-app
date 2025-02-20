@@ -1,4 +1,3 @@
-import { GraphQLInt, GraphQLObjectType, GraphQLString } from 'graphql';
 import * as dbService from '../../../database/db.service.js';
 import { postModel } from '../../../database/model/index.js';
 import * as postTypes from '../types/post.types.js';
@@ -20,3 +19,5 @@ export const postList = {
     };
   }
 };
+
+
