@@ -33,3 +33,8 @@ export const updatePost = Joi.object({
       finalPath: Joi.string(),
     })),
 }).or('content', 'file');
+
+export const likePostGraph = Joi.object({
+  postId: Joi.string().required(),
+  authorization: Joi.string().required(),
+});

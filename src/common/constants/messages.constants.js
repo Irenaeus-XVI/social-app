@@ -53,5 +53,6 @@ export const message = {
   },
   common:{
     tooManyRequest: 'Too many request!',
+    validationError: 'Validation error!',
   }
 };

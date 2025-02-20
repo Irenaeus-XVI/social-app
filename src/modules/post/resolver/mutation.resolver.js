@@ -2,8 +2,9 @@ import { GraphQLID, GraphQLNonNull, GraphQLString } from 'graphql';
 import * as dbService from '../../../database/db.service.js';
 import { postModel } from '../../../database/model/index.js';
 import * as postTypes from '../types/post.types.js';
-import { authGraphMiddleware, authorizationGraphMiddleware } from '../../../middleware/index.js';
+import { authGraphMiddleware, authorizationGraphMiddleware, validationGraph } from '../../../middleware/index.js';
 import { ROLE } from '../../../common/constants/index.js';
+import { likePostGraph } from '../post.validation.js';
 
 
 
@@ -19,6 +20,10 @@ export const likePost = {
   },
   resolve: async (parent, args) => {
     const { postId, authorization } = args;
+    await validationGraph({
+      schema: likePostGraph,
+      inputs: { postId, authorization }
+    })
     const user = await authGraphMiddleware({ authorization })
     authorizationGraphMiddleware(ROLE.USER, user.role);
     const post = await dbService.findOneAndUpdate({
