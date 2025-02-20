@@ -1,5 +1,12 @@
 import { GraphQLBoolean, GraphQLEnumType, GraphQLID, GraphQLList, GraphQLObjectType, GraphQLString } from "graphql";
 import { GENDER, PROVIDERS, ROLE } from "../../../common/constants/index.js";
+export const attachmentType = new GraphQLObjectType({
+  name: 'attachmentType',
+  fields: {
+    secure_url: { type: GraphQLString },
+    public_id: { type: GraphQLString }
+  }
+});
 
 export const userType = new GraphQLObjectType({
   name: 'userTypes',
@@ -45,6 +52,12 @@ export const userType = new GraphQLObjectType({
     confirmEmail: { type: GraphQLBoolean },
     twoStepVerification: { type: GraphQLBoolean },
     isDeleted: { type: GraphQLBoolean },
+    image: {
+      type: attachmentType
+    },
+    coverImages: {
+      type: new GraphQLList(attachmentType)
+    }
   }
 })
 

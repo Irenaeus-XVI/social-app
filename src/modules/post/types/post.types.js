@@ -1,13 +1,6 @@
 import { GraphQLBoolean, GraphQLID, GraphQLInt, GraphQLList, GraphQLObjectType, GraphQLString } from 'graphql';
-import { userType } from '../../user/types/user.types.js';
+import { attachmentType, userType } from '../../user/types/user.types.js';
 
-export const attachmentType = new GraphQLObjectType({
-  name: 'attachmentType',
-  fields: {
-    secure_url: { type: GraphQLString },
-    public_id: { type: GraphQLString }
-  }
-});
 
 export const postType = new GraphQLObjectType({
   name: 'postType',

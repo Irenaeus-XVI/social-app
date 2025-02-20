@@ -54,7 +54,6 @@ postSchema.virtual('comments', {
 });
 
 postSchema.pre('findOneAndUpdate', async function (next) {
-  console.log('Middleware triggered:', this);
 
   const update = this.getUpdate();
   if (update.isDeleted) {
