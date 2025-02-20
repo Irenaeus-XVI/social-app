@@ -62,3 +62,13 @@ export const userType = new GraphQLObjectType({
 })
 
 export const userList = new GraphQLList(userType);
+
+
+export const userProfileResponse = new GraphQLObjectType({
+  name: 'userProfileResponse',
+  fields: {
+    statusCode: { type: GraphQLID },
+    message: { type: GraphQLString },
+    data: { type: userType }
+  }
+});
