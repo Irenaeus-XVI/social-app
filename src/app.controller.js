@@ -9,8 +9,8 @@ import rateLimit from "express-rate-limit";
 import { AppError } from "./utils/appError.js";
 import { message } from "./common/constants/messages.constants.js";
 import helmet from "helmet";
-
-
+import { createHandler } from "graphql-http/lib/use/express";
+import { schema } from "./modules/modules.schema.js";
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -31,7 +31,7 @@ const bootstrap = (app, express) => {
   app.use('/post', limiter);
   app.use('/uploads', express.static(path.resolve('./src/uploads')));
   app.use(express.json());
-
+  app.use('/graphql', createHandler({ schema }));
   app.get('/', (req, res) => res.send('Hello World!'));
 
   app.use('/auth', authController);
