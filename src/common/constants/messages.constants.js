@@ -56,5 +56,15 @@ export const message = {
   common:{
     tooManyRequest: 'Too many request!',
     validationError: 'Validation error!',
+  },
+  chat:{
+    ...generateMessage('Chat'),
+    created: 'Chat created successfully!',
+    updated: 'Chat updated successfully!',
+  },
+  message:{
+    ...generateMessage('Message'),
+    created: 'Message created successfully!',
+    updated: 'Message updated successfully!',
   }
 };

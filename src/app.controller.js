@@ -3,6 +3,7 @@ import { globalErrorHandling, morganMiddleware } from "./middleware/index.js";
 import authController from "./modules/auth/auth.controller.js";
 import userController from "./modules/user/user.controller.js";
 import postController from "./modules/post/post.controller.js";
+import chatController from "./modules/chat/chat.controller.js";
 import cors from 'cors';
 import path from 'node:path';
 import rateLimit from "express-rate-limit";
@@ -37,7 +38,7 @@ const bootstrap = (app, express) => {
   app.use('/auth', authController);
   app.use('/user', userController);
   app.use('/post', postController);
-
+  app.use('/chat', chatController);
   app.all('*', (req, res) => {
     res.status(404).json({ message: 'Route not found' });
   });
