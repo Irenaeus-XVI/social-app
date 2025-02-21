@@ -25,7 +25,7 @@ export const getChat = asyncHandler(async (req, res) => {
       { path: 'users' },
     ]
   })
-  res.status(200).json(chat);
+  return successResponse({ res, status: 200, data: chat });
 });
 
 export const sendMessage = asyncHandler(async (req, res) => {

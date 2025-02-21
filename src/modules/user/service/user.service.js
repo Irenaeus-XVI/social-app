@@ -61,7 +61,8 @@ export const profile = asyncHandler(async (req, res, next) => {
     model: userModel, filter: { _id: req.user._id }, select: "-password", populate: [{
       path: "viewers.userId",
       select: "userName image email"
-    }]
+    },
+    {path:'friends', select: 'userName image email'}]
   });
   return successResponse({ res, status: 200, data: user });
 });

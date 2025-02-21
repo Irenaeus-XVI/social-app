@@ -2,9 +2,12 @@ import express from 'express'
 import * as dotenv from 'dotenv'
 import path from 'node:path'
 import bootstrap from './src/app.controller.js'
+import { runSocket } from './src/socketio/socket.io.js'
 const app = express()
-dotenv.config({path: path.resolve('./src/config/.env.dev')})
+dotenv.config({ path: path.resolve('./src/config/.env.dev') })
 const port = process.env.PORT || 3000;
 
 bootstrap(app, express);
-app.listen(port, () => console.log(`🚀Example app listening on port ${port}!`))
+const server = app.listen(port, () => console.log(`🚀Example app listening on port ${port}!`));
+
+runSocket(server);
