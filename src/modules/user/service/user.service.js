@@ -7,6 +7,7 @@ import { emailEvent } from "../../../utils/events/email.event.js";
 import { compareHash, generateHash, validateOTP } from "../../../utils/security/index.js";
 import { destroyImage, uploadImage } from "../../../utils/imageUpload.js";
 import { AppError } from "../../../utils/appError.js";
+import { areFriends, isFriendRequestSent } from "../helper/user.helper.js";
 
 
 export const dashboard = asyncHandler(async (req, res, next) => {
@@ -191,5 +192,56 @@ export const updateCoverImage = asyncHandler(async (req, res, next) => {
   });
 
   return successResponse({ res, status: 200, data: { file: req.file } });
+});
+
+export const sendFriendRequest = asyncHandler(async (req, res, next) => {
+  const { friendId } = req.params;
+  const user = req.user;
+  const friend = await dbService.findOne({
+    model: userModel,
+    filter: { _id: friendId, isDeleted: false },
+    lean: false
+  });
+
+  if (!friend) {
+    return next(new AppError(message.user.NotFound, 404));
+  }
+
+
+  if (areFriends(user, friend) || isFriendRequestSent(friend, user)) {
+    return next(new AppError(message.user.AlreadyExists, 400));
+  }
+
+  friend.friendRequests.push(user._id);
+  await friend.save();
+
+  return user ? successResponse({ res, status: 200, data: user, message: message.user.FriendRequest }) : next(new AppError(message.user.NotFound, 404));
+});
+
+
+export const acceptFriendRequest = asyncHandler(async (req, res, next) => {
+  const { friendId } = req.params;
+  const user = req.user;
+  const friend = await dbService.findOne({
+    model: userModel,
+    filter: { _id: friendId, isDeleted: false },
+    lean: false
+  });
+
+  if (!friend) {
+    return next(new AppError(message.user.NotFound, 404));
+  }
+
+  if (areFriends(user, friend)) {
+    return next(new AppError(message.user.NotFound, 404));
+  }
+
+  user.friends.push(friend._id);
+  friend.friends.push(user._id);
+
+  user.friendRequests = user.friendRequests.filter((id) => id.toString() !== friend._id.toString());
+  await Promise.all([user.save(), friend.save()]);
+
+  return user ? successResponse({ res, status: 200, data: user, message: message.user.FriendRequestAccepted }) : next(new AppError(message.user.NotFound, 404));
 });
 

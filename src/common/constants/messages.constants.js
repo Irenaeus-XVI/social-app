@@ -25,6 +25,8 @@ export const message = {
     EmailUpdated: 'Email updated successfully!',
     WrongPassword: 'Wrong password!',
     Password_Updated: 'Password updated successfully!',
+    FriendRequestSent: 'Friend request sent successfully!',
+    FriendRequestAccepted: 'Friend request accepted successfully!',
   },
   INVALID_OBJECT_ID: 'Invalid object id!',
   OTP:{

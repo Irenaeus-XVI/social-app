@@ -23,4 +23,15 @@ router.patch('/profile/cover',
   authMiddleware(),
   uploadCloudFile().array("attachment", 3),
   userService.updateCoverImage);
+
+router.post('/friend-request/:friendId',
+  validateMongoId('friendId'),
+  authMiddleware(),
+  userService.sendFriendRequest);
+
+router.post('/friend-request/:friendId/accept',
+  validateMongoId('friendId'),
+  authMiddleware(),
+  userService.acceptFriendRequest);
+
 export default router; 

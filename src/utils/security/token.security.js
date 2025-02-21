@@ -27,7 +27,7 @@ export const decodeToken = async ({ authorization, tokenType = TOKEN_TYPES.ACCES
     return next(new AppError(message.user.Unauthorize, 401));
   }
 
-  const user = await dbService.findOne({ model: userModel, filter: { _id: decoded.id } });
+  const user = await dbService.findOne({ model: userModel, filter: { _id: decoded.id }, lean: false });
 
   if (!user) {
     return next(new AppError(message.user.NotFound, 404));
