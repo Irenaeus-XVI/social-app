@@ -9,7 +9,7 @@
     "dev": "nodemon index.js"
   },
   "engines": {
-    "node": "23.6.0"
+    "node": "22.x"
   },
   "keywords": [],
   "author": "",
