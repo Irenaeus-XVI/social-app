@@ -1,8 +1,8 @@
 import express from 'express'
 import * as dotenv from 'dotenv'
 import path from 'node:path'
-import bootstrap from './src/app.controller.js'
-import { runSocket } from './src/socketio/socket.io.js'
+import bootstrap from './app.controller.js'
+import { runSocket } from './socketio/socket.io.js'
 const app = express()
 dotenv.config({ path: path.resolve('./src/config/.env.dev') })
 const port = process.env.PORT || 3000;

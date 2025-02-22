@@ -1,12 +1,12 @@
 {
   "name": "social-media-app",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "./src/index.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node ./src/index.js",
+    "start:dev": "nodemon --watch src --legacy-watch  ./src/index.js"
   },
   "engines": {
     "node": "22.x"
@@ -36,5 +36,8 @@
     "nodemailer": "^6.10.0",
     "socket.io": "^4.8.1",
     "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
 }
